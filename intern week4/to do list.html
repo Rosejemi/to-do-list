@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>To-Do List</title>
+<style>
+    /* CSS for styling */
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #0a021af2;
+    }
+    .container {
+        max-width: 600px;
+        margin: 20px auto;
+        background-color: #ccc9c9;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    input[type="text"] {
+        width: calc(100% - 80px);
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        border: 1px solid #09e7f3;
+    }
+    button {
+        padding: 10px 20px;
+        background-color: #4CAF50;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    ul {
+        list-style-type: none;
+        padding: 0;
+    }
+    li {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        background-color: #f9f9f9;
+        border-radius: 5px;
+        margin-bottom: 5px;
+    }
+    .delete {
+        margin-left: auto;
+        margin-right: 10px;
+        cursor: pointer;
+    }
+    .edit {
+        margin-right: 10px;
+        cursor: pointer;
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <h2>To-Do List</h2>
+    <input type="text" id="taskInput" placeholder="Add new task">
+    <button onclick="addTask()">Add Task</button>
+    <input type="text" id="filterInput" onkeyup="filterTasks()" placeholder="Filter tasks">
+    <ul id="taskList"></ul>
+</div>
+<script>
+    // JavaScript for functionality
+    let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+    function renderTasks() {
+        const taskList = document.getElementById('taskList');
+        taskList.innerHTML = '';
+        tasks.forEach((task, index) => {
+            const li = document.createElement('li');
+            li.textContent = task.name;
+            if (task.completed) {
+                li.style.textDecoration = 'line-through';
+            }
+            const editButton = document.createElement('span');
+            editButton.textContent = '✎';
+            editButton.className = 'edit';
+            editButton.onclick = () => editTask(index);
+            li.appendChild(editButton);
+            const deleteButton = document.createElement('span');
+            deleteButton.textContent = '❌';
+            deleteButton.className = 'delete';
+            deleteButton.onclick = () => deleteTask(index);
+            li.appendChild(deleteButton);
+            li.onclick = () => toggleTask(index);
+            taskList.appendChild(li);
+        });
+    }
+
+    function addTask() {
+        const taskInput = document.getElementById('taskInput');
+        const taskName = taskInput.value.trim();
+        if (taskName) {
+            tasks.push({ name: taskName, completed: false });
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            renderTasks();
+            taskInput.value = '';
+        }
+    }
+
+    function editTask(index) {
+        const newTaskName = prompt('Enter new task name:');
+        if (newTaskName !== null && newTaskName.trim() !== '') {
+            tasks[index].name = newTaskName.trim();
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            renderTasks();
+        }
+    }
+
+    function deleteTask(index) {
+        tasks.splice(index, 1);
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+        renderTasks();
+    }
+
+    function toggleTask(index) {
+        tasks[index].completed = !tasks[index].completed;
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+        renderTasks();
+    }
+
+    function filterTasks() {
+        const filterInput = document.getElementById('filterInput');
+        const filterValue = filterInput.value.toLowerCase();
+        const filteredTasks = tasks.filter(task => task.name.toLowerCase().includes(filterValue));
+        renderFilteredTasks(filteredTasks);
+    }
+
+    function renderFilteredTasks(filteredTasks) {
+        const taskList = document.getElementById('taskList');
+        taskList.innerHTML = '';
+        filteredTasks.forEach((task, index) => {
+            const li = document.createElement('li');
+            li.textContent = task.name;
+            if (task.completed) {
+                li.style.textDecoration = 'line-through';
+            }
+            const editButton = document.createElement('span');
+            editButton.textContent = '✎';
+            editButton.className = 'edit';
+            editButton.onclick = () => editTask(index);
+            li.appendChild(editButton);
+            const deleteButton = document.createElement('span');
+            deleteButton.textContent = '❌';
+            deleteButton.className = 'delete';
+            deleteButton.onclick = () => deleteTask(index);
+            li.appendChild(deleteButton);
+            li.onclick = () => toggleTask(index);
+            taskList.appendChild(li);
+        });
+    }
+
+    renderTasks();
+</script>
+</body>
+</html>
